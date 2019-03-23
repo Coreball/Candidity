@@ -22,6 +22,8 @@ class CameraViewController: UIViewController {
         
         // Set up the video preview view.
         previewView.session = session
+        previewView.videoPreviewLayer.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        
         /*
          Check video authorization status. Video access is required and audio
          access is optional. If the user denies audio access, Candidity won't
@@ -73,6 +75,7 @@ class CameraViewController: UIViewController {
         super.viewWillAppear(animated)
         
         sessionQueue.async {
+            self.showInfoMessage() // Show info message first
             switch self.setupResult {
             case .success:
                 // Only setup observers and start the session running if setup succeeded.
@@ -129,26 +132,19 @@ class CameraViewController: UIViewController {
         super.viewWillDisappear(animated)
     }
     
-    override var shouldAutorotate: Bool {
-        return true
-    }
-    
-    override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-        return .all
-    }
-    
-    override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
-        super.viewWillTransition(to: size, with: coordinator)
-        
-        if let videoPreviewLayerConnection = previewView.videoPreviewLayer.connection {
-            let deviceOrientation = UIDevice.current.orientation
-            guard let newVideoOrientation = AVCaptureVideoOrientation(deviceOrientation: deviceOrientation),
-                deviceOrientation.isPortrait || deviceOrientation.isLandscape else {
-                    return
-            }
-            
-            videoPreviewLayerConnection.videoOrientation = newVideoOrientation
-        }
+    private func showInfoMessage() {
+        let message = """
+            A Minimalist Camera App
+
+            One Finger Tap - Take Picture
+            Two Finger Tap - Switch Camera
+            Three Finger Tap - Toggle Live Photo
+            """
+        let actions = ["OK", "Let's Go!", "Continue", "Go", "Begin", "Start", "Yay!"]
+        let chosenAction = actions.randomElement()!
+        let alert = UIAlertController(title: "Candidity", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: chosenAction, style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     // MARK: Session Management
@@ -395,16 +391,9 @@ class CameraViewController: UIViewController {
     
     /// - Tag: CapturePhoto
     @IBAction private func capturePhoto(_ photoButton: UIButton) {
-        /*
-         Retrieve the video preview layer's video orientation on the main queue before
-         entering the session queue. We do this to ensure UI elements are accessed on
-         the main thread and session configuration is done on the session queue.
-         */
-        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
-        
         sessionQueue.async {
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
-                photoOutputConnection.videoOrientation = videoPreviewLayerOrientation!
+                photoOutputConnection.videoOrientation = AVCaptureVideoOrientation(deviceOrientation: UIDevice.current.orientation)!
             }
             var photoSettings = AVCapturePhotoSettings()
             
