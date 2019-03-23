@@ -16,9 +16,9 @@ class CameraViewController: UIViewController {
         super.viewDidLoad()
         
         // Disable UI. Enable the UI later, if and only if the session starts running.
-        cameraButton.isEnabled = false
-        photoButton.isEnabled = false
-        livePhotoModeButton.isEnabled = false
+        cameraTap.isEnabled = false
+        photoTap.isEnabled = false
+        livePhotoModeTap.isEnabled = false
         
         // Set up the video preview view.
         previewView.session = session
@@ -264,7 +264,7 @@ class CameraViewController: UIViewController {
     
     // MARK: Device Configuration
     
-    @IBOutlet private weak var cameraButton: UIButton!
+    @IBOutlet private weak var cameraTap: UITapGestureRecognizer!
     
     @IBOutlet private weak var cameraUnavailableLabel: UILabel!
     
@@ -272,10 +272,11 @@ class CameraViewController: UIViewController {
                                                                                mediaType: .video, position: .unspecified)
     
     /// - Tag: ChangeCamera
-    @IBAction private func changeCamera(_ cameraButton: UIButton) {
-        cameraButton.isEnabled = false
-        photoButton.isEnabled = false
-        livePhotoModeButton.isEnabled = false
+    @IBAction private func changeCamera(_ sender: UITapGestureRecognizer) {
+        print("Changing Camera")
+        cameraTap.isEnabled = false
+        photoTap.isEnabled = false
+        livePhotoModeTap.isEnabled = false
         
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
@@ -334,9 +335,9 @@ class CameraViewController: UIViewController {
             }
             
             DispatchQueue.main.async {
-                self.cameraButton.isEnabled = true
-                self.photoButton.isEnabled = true
-                self.livePhotoModeButton.isEnabled = true
+                self.cameraTap.isEnabled = true
+                self.photoTap.isEnabled = true
+                self.livePhotoModeTap.isEnabled = true
             }
         }
     }
@@ -347,10 +348,11 @@ class CameraViewController: UIViewController {
     
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
     
-    @IBOutlet private weak var photoButton: UIButton!
+    @IBOutlet private weak var photoTap: UITapGestureRecognizer!
     
     /// - Tag: CapturePhoto
-    @IBAction private func capturePhoto(_ photoButton: UIButton) {
+    @IBAction private func capturePhoto(_ sender: UITapGestureRecognizer) {
+        print("Capturing Photo")
         sessionQueue.async {
             if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                 photoOutputConnection.videoOrientation = AVCaptureVideoOrientation(deviceOrientation: UIDevice.current.orientation)!
@@ -362,9 +364,10 @@ class CameraViewController: UIViewController {
                 photoSettings = AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecType.hevc])
             }
             
-            if self.videoDeviceInput.device.isFlashAvailable {
-                photoSettings.flashMode = .auto
-            }
+//            if self.videoDeviceInput.device.isFlashAvailable {
+//                photoSettings.flashMode = .auto
+//            }
+            photoSettings.flashMode = .off
             
             photoSettings.isHighResolutionPhotoEnabled = true
             if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
@@ -424,18 +427,20 @@ class CameraViewController: UIViewController {
     
     private var livePhotoMode: LivePhotoMode = .off
     
-    @IBOutlet private weak var livePhotoModeButton: UIButton!
+    @IBOutlet private weak var livePhotoModeTap: UITapGestureRecognizer!
     
-    @IBAction private func toggleLivePhotoMode(_ livePhotoModeButton: UIButton) {
+    @IBAction private func toggleLivePhotoMode(_ sender: UITapGestureRecognizer) {
         sessionQueue.async {
             self.livePhotoMode = (self.livePhotoMode == .on) ? .off : .on
             let livePhotoMode = self.livePhotoMode
             
             DispatchQueue.main.async {
                 if livePhotoMode == .on {
-                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoON"), for: [])
+                    print("Live Photos On")
+                    // Change color
                 } else {
-                    self.livePhotoModeButton.setImage(#imageLiteral(resourceName: "LivePhotoOFF"), for: [])
+                    print("Live Photos Off")
+                    // Change color
                 }
             }
         }
@@ -457,10 +462,10 @@ class CameraViewController: UIViewController {
             
             DispatchQueue.main.async {
                 // Only enable the ability to change camera if the device has more than one camera.
-                self.cameraButton.isEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-                self.photoButton.isEnabled = isSessionRunning
-                self.livePhotoModeButton.isEnabled = isSessionRunning && isLivePhotoCaptureEnabled
-                self.livePhotoModeButton.isHidden = !(isSessionRunning && isLivePhotoCaptureSupported)
+                self.cameraTap.isEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
+                self.photoTap.isEnabled = isSessionRunning
+                self.livePhotoModeTap.isEnabled = isSessionRunning && isLivePhotoCaptureEnabled
+                self.livePhotoModeTap.isEnabled = !(isSessionRunning && isLivePhotoCaptureSupported)
             }
         }
         keyValueObservations.append(keyValueObservation)
