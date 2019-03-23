@@ -27,7 +27,7 @@
                                 </connections>
                             </view>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pii-2r-R2l" userLabel="Capturing Live Photo">
-                                <rect key="frame" x="191.66666666666666" y="110" width="31" height="20.666666666666657"/>
+                                <rect key="frame" x="192" y="110" width="30" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
@@ -75,38 +75,6 @@
                                     <action selector="changeCamera:" destination="BYZ-38-t0r" eventType="touchUpInside" id="3W0-h3-6fc"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="k2e-iy-hZx" userLabel="Portrait Effects Matte Delivery">
-                                <rect key="frame" x="334" y="40" width="50" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="50" id="15L-jw-KI1"/>
-                                    <constraint firstAttribute="height" constant="50" id="Rhs-tx-wuW"/>
-                                </constraints>
-                                <state key="normal" image="PortraitMatteON"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="4"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="togglePortraitEffectsMatteDeliveryMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="0gF-gc-5Pe"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="9i1-NX-Qxg" userLabel="Depth Data Delivery">
-                                <rect key="frame" x="182" y="40" width="50" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="DBZ-an-hCH"/>
-                                    <constraint firstAttribute="width" constant="50" id="txq-sa-50i"/>
-                                </constraints>
-                                <state key="normal" image="DepthON"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                        <integer key="value" value="4"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                                <connections>
-                                    <action selector="toggleDepthDataDeliveryMode:" destination="BYZ-38-t0r" eventType="touchUpInside" id="iSb-YO-MyR"/>
-                                </connections>
-                            </button>
                             <button opaque="NO" contentMode="scaleAspectFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eI6-gV-W7d" userLabel="Live Photo Mode">
                                 <rect key="frame" x="30" y="40" width="50" height="50"/>
                                 <constraints>
@@ -126,21 +94,14 @@
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="k2e-iy-hZx" firstAttribute="top" secondItem="9i1-NX-Qxg" secondAttribute="top" id="6s5-Ib-dPR"/>
                             <constraint firstItem="3eR-Rn-XpZ" firstAttribute="trailing" secondItem="nyU-fN-aJh" secondAttribute="trailing" id="8ud-UI-Sfr"/>
-                            <constraint firstItem="nyU-fN-aJh" firstAttribute="trailing" secondItem="k2e-iy-hZx" secondAttribute="trailing" constant="60" id="A9L-Xb-0Jl">
-                                <variation key="heightClass=regular" constant="30"/>
-                            </constraint>
-                            <constraint firstItem="k2e-iy-hZx" firstAttribute="centerX" secondItem="9i1-NX-Qxg" secondAttribute="centerX" id="EMU-8C-9iA"/>
                             <constraint firstItem="nyU-fN-aJh" firstAttribute="trailing" secondItem="rUJ-G6-RPv" secondAttribute="trailing" constant="30" id="J70-ky-10v"/>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="top" secondItem="rUJ-G6-RPv" secondAttribute="top" id="NFm-e8-abT"/>
                             <constraint firstItem="eI6-gV-W7d" firstAttribute="leading" secondItem="nyU-fN-aJh" secondAttribute="leading" constant="60" id="OfR-mz-BO3">
                                 <variation key="heightClass=compact" constant="30"/>
                                 <variation key="heightClass=regular" constant="30"/>
                             </constraint>
-                            <constraint firstItem="eI6-gV-W7d" firstAttribute="centerX" secondItem="9i1-NX-Qxg" secondAttribute="centerX" id="Pm4-eO-sdY"/>
                             <constraint firstItem="zf0-db-esM" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="Ris-mI-8lA"/>
-                            <constraint firstItem="9i1-NX-Qxg" firstAttribute="top" secondItem="eI6-gV-W7d" secondAttribute="top" id="SNY-VC-ohk"/>
                             <constraint firstItem="Pii-2r-R2l" firstAttribute="centerX" secondItem="nyU-fN-aJh" secondAttribute="centerX" id="SXi-MU-H9D"/>
                             <constraint firstItem="3eR-Rn-XpZ" firstAttribute="leading" secondItem="nyU-fN-aJh" secondAttribute="leading" id="Sdw-MH-42e"/>
                             <constraint firstItem="zf0-db-esM" firstAttribute="centerX" secondItem="nyU-fN-aJh" secondAttribute="centerX" id="W6q-xJ-jfF"/>
@@ -149,68 +110,39 @@
                             </constraint>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="ZGJ-Ly-Ppb"/>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="height" secondItem="rUJ-G6-RPv" secondAttribute="height" id="aQi-F7-E2b"/>
-                            <constraint firstItem="k2e-iy-hZx" firstAttribute="top" secondItem="nyU-fN-aJh" secondAttribute="top" constant="30" id="aqZ-EO-3Fl">
-                                <variation key="heightClass=compact" constant="30"/>
-                            </constraint>
                             <constraint firstItem="nyU-fN-aJh" firstAttribute="trailing" secondItem="uCj-6P-mHF" secondAttribute="trailing" constant="40" id="b0r-sh-cwd"/>
+                            <constraint firstItem="nyU-fN-aJh" firstAttribute="bottom" secondItem="eI6-gV-W7d" secondAttribute="bottom" constant="772" id="d2E-gj-e2C"/>
                             <constraint firstItem="nyU-fN-aJh" firstAttribute="bottom" secondItem="uCj-6P-mHF" secondAttribute="bottom" constant="40" id="eWs-co-Aaz"/>
                             <constraint firstItem="3eR-Rn-XpZ" firstAttribute="bottom" secondItem="8bC-Xf-vdC" secondAttribute="bottom" id="ea0-4F-Kd7"/>
+                            <constraint firstItem="Pii-2r-R2l" firstAttribute="top" secondItem="nyU-fN-aJh" secondAttribute="top" constant="66" id="ezj-QI-cM2"/>
+                            <constraint firstItem="Pii-2r-R2l" firstAttribute="leading" secondItem="nyU-fN-aJh" secondAttribute="leading" constant="192" id="g7O-2I-vrt"/>
                             <constraint firstItem="3eR-Rn-XpZ" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="igk-MQ-CGt"/>
                             <constraint firstItem="Pii-2r-R2l" firstAttribute="top" secondItem="nyU-fN-aJh" secondAttribute="top" constant="20" id="kgV-F4-efV"/>
-                            <constraint firstItem="k2e-iy-hZx" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="lKh-gu-ie2"/>
                             <constraint firstItem="nyU-fN-aJh" firstAttribute="centerX" secondItem="uCj-6P-mHF" secondAttribute="centerX" id="m8a-cF-Rf0"/>
-                            <constraint firstItem="9i1-NX-Qxg" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ny4-fB-wQH"/>
                             <constraint firstItem="uCj-6P-mHF" firstAttribute="width" secondItem="rUJ-G6-RPv" secondAttribute="width" id="o8j-gw-35B"/>
-                            <constraint firstItem="9i1-NX-Qxg" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="pd7-Dh-d2e"/>
-                            <constraint firstItem="9i1-NX-Qxg" firstAttribute="leading" secondItem="nyU-fN-aJh" secondAttribute="leading" constant="30" id="q6Y-ZM-hP8">
-                                <variation key="heightClass=compact" constant="20"/>
-                            </constraint>
-                            <constraint firstItem="9i1-NX-Qxg" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="40" id="qVc-EN-il5"/>
-                            <constraint firstItem="Pii-2r-R2l" firstAttribute="top" secondItem="9i1-NX-Qxg" secondAttribute="bottom" constant="20" id="sNQ-wG-QKR"/>
                             <constraint firstItem="nyU-fN-aJh" firstAttribute="bottom" secondItem="eI6-gV-W7d" secondAttribute="bottom" constant="30" id="vVo-dd-B0t">
                                 <variation key="heightClass=compact" constant="30"/>
                             </constraint>
-                            <constraint firstItem="k2e-iy-hZx" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="zDr-9x-9rD"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="nyU-fN-aJh"/>
                         <variation key="default">
                             <mask key="constraints">
                                 <exclude reference="b0r-sh-cwd"/>
                                 <exclude reference="vVo-dd-B0t"/>
-                                <exclude reference="Pm4-eO-sdY"/>
-                                <exclude reference="pd7-Dh-d2e"/>
-                                <exclude reference="q6Y-ZM-hP8"/>
                                 <exclude reference="kgV-F4-efV"/>
-                                <exclude reference="EMU-8C-9iA"/>
-                                <exclude reference="aqZ-EO-3Fl"/>
-                                <exclude reference="lKh-gu-ie2"/>
-                                <exclude reference="zDr-9x-9rD"/>
                                 <exclude reference="ZGJ-Ly-Ppb"/>
                                 <exclude reference="WGW-f8-ThP"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact">
                             <mask key="constraints">
-                                <exclude reference="A9L-Xb-0Jl"/>
                                 <exclude reference="J70-ky-10v"/>
                                 <include reference="b0r-sh-cwd"/>
                                 <exclude reference="eWs-co-Aaz"/>
                                 <exclude reference="m8a-cF-Rf0"/>
                                 <include reference="vVo-dd-B0t"/>
                                 <exclude reference="OfR-mz-BO3"/>
-                                <include reference="Pm4-eO-sdY"/>
-                                <exclude reference="SNY-VC-ohk"/>
-                                <exclude reference="ny4-fB-wQH"/>
-                                <include reference="pd7-Dh-d2e"/>
-                                <include reference="q6Y-ZM-hP8"/>
-                                <exclude reference="qVc-EN-il5"/>
                                 <include reference="kgV-F4-efV"/>
-                                <exclude reference="sNQ-wG-QKR"/>
-                                <exclude reference="6s5-Ib-dPR"/>
-                                <include reference="EMU-8C-9iA"/>
-                                <include reference="aqZ-EO-3Fl"/>
-                                <exclude reference="lKh-gu-ie2"/>
-                                <exclude reference="zDr-9x-9rD"/>
                                 <exclude reference="NFm-e8-abT"/>
                                 <include reference="ZGJ-Ly-Ppb"/>
                                 <include reference="WGW-f8-ThP"/>
@@ -223,10 +155,8 @@
                         <outlet property="cameraButton" destination="rUJ-G6-RPv" id="dAV-WS-N1p"/>
                         <outlet property="cameraUnavailableLabel" destination="zf0-db-esM" id="P9W-lb-Pb8"/>
                         <outlet property="capturingLivePhotoLabel" destination="Pii-2r-R2l" id="JAa-4l-5SD"/>
-                        <outlet property="depthDataDeliveryButton" destination="9i1-NX-Qxg" id="The-P3-y3W"/>
                         <outlet property="livePhotoModeButton" destination="eI6-gV-W7d" id="r9f-cN-YSH"/>
                         <outlet property="photoButton" destination="uCj-6P-mHF" id="Ha8-ua-hxy"/>
-                        <outlet property="portraitEffectsMatteDeliveryButton" destination="k2e-iy-hZx" id="bwb-5t-x2l"/>
                         <outlet property="previewView" destination="3eR-Rn-XpZ" id="e7I-nu-L6j"/>
                     </connections>
                 </viewController>
@@ -242,10 +172,8 @@
     </scenes>
     <resources>
         <image name="CapturePhoto" width="150" height="150"/>
-        <image name="DepthON" width="150" height="150"/>
         <image name="FlipCamera" width="150" height="150"/>
         <image name="LivePhotoON" width="150" height="150"/>
-        <image name="PortraitMatteON" width="150" height="150"/>
     </resources>
     <color key="tintColor" red="1" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
 </document>

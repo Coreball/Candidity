@@ -19,15 +19,13 @@ class CameraViewController: UIViewController {
         cameraButton.isEnabled = false
         photoButton.isEnabled = false
         livePhotoModeButton.isEnabled = false
-        depthDataDeliveryButton.isEnabled = false
-        portraitEffectsMatteDeliveryButton.isEnabled = false
         
         // Set up the video preview view.
         previewView.session = session
         /*
          Check video authorization status. Video access is required and audio
          access is optional. If the user denies audio access, Candidity won't
-         record audio during movie recording.
+         record audio during live photo recording.
          */
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
@@ -257,8 +255,6 @@ class CameraViewController: UIViewController {
             photoOutput.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliverySupported
             photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
             livePhotoMode = photoOutput.isLivePhotoCaptureSupported ? .on : .off
-            depthDataDeliveryMode = photoOutput.isDepthDataDeliverySupported ? .on : .off
-            portraitEffectsMatteDeliveryMode = photoOutput.isPortraitEffectsMatteDeliverySupported ? .on : .off
             
         } else {
             print("Could not add photo output to the session")
@@ -331,14 +327,12 @@ class CameraViewController: UIViewController {
                     }
                     
                     /*
-                     Set Live Photo capture and depth data delivery if it is supported. When changing cameras, the
-                     `livePhotoCaptureEnabled and depthDataDeliveryEnabled` properties of the AVCapturePhotoOutput gets set to NO when
+                     Set Live Photo capture if it is supported. When changing cameras, the
+                     `livePhotoCaptureEnabled` property of the AVCapturePhotoOutput gets set to NO when
                      a video device is disconnected from the session. After the new video device is
-                     added to the session, re-enable them on the AVCapturePhotoOutput if it is supported.
+                     added to the session, re-enable it on the AVCapturePhotoOutput if it is supported.
                      */
                     self.photoOutput.isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureSupported
-                    self.photoOutput.isDepthDataDeliveryEnabled = self.photoOutput.isDepthDataDeliverySupported
-                    self.photoOutput.isPortraitEffectsMatteDeliveryEnabled = self.photoOutput.isPortraitEffectsMatteDeliverySupported
                     
                     self.session.commitConfiguration()
                 } catch {
@@ -350,10 +344,6 @@ class CameraViewController: UIViewController {
                 self.cameraButton.isEnabled = true
                 self.photoButton.isEnabled = true
                 self.livePhotoModeButton.isEnabled = true
-                self.depthDataDeliveryButton.isEnabled = self.photoOutput.isDepthDataDeliveryEnabled
-                self.depthDataDeliveryButton.isHidden = !self.photoOutput.isDepthDataDeliverySupported
-                self.portraitEffectsMatteDeliveryButton.isEnabled = self.photoOutput.isPortraitEffectsMatteDeliveryEnabled
-                self.portraitEffectsMatteDeliveryButton.isHidden = !self.photoOutput.isPortraitEffectsMatteDeliverySupported
             }
         }
     }
@@ -437,12 +427,6 @@ class CameraViewController: UIViewController {
                 photoSettings.livePhotoMovieFileURL = URL(fileURLWithPath: livePhotoMovieFilePath)
             }
             
-            photoSettings.isDepthDataDeliveryEnabled = (self.depthDataDeliveryMode == .on
-                && self.photoOutput.isDepthDataDeliveryEnabled)
-            
-            photoSettings.isPortraitEffectsMatteDeliveryEnabled = (self.portraitEffectsMatteDeliveryMode == .on
-                && self.photoOutput.isPortraitEffectsMatteDeliveryEnabled)
-            
             let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: {
                 // Flash the screen to signal that Candidity took a photo.
                 DispatchQueue.main.async {
@@ -489,16 +473,6 @@ class CameraViewController: UIViewController {
         case off
     }
     
-    private enum DepthDataDeliveryMode {
-        case on
-        case off
-    }
-    
-    private enum PortraitEffectsMatteDeliveryMode {
-        case on
-        case off
-    }
-    
     private var livePhotoMode: LivePhotoMode = .off
     
     @IBOutlet private weak var livePhotoModeButton: UIButton!
@@ -518,52 +492,6 @@ class CameraViewController: UIViewController {
         }
     }
     
-    private var depthDataDeliveryMode: DepthDataDeliveryMode = .off
-    
-    @IBOutlet private weak var depthDataDeliveryButton: UIButton!
-    
-    @IBAction func toggleDepthDataDeliveryMode(_ depthDataDeliveryButton: UIButton) {
-        sessionQueue.async {
-            self.depthDataDeliveryMode = (self.depthDataDeliveryMode == .on) ? .off : .on
-            let depthDataDeliveryMode = self.depthDataDeliveryMode
-            if depthDataDeliveryMode == .off {
-                self.portraitEffectsMatteDeliveryMode = .off
-            }
-            
-            DispatchQueue.main.async {
-                if depthDataDeliveryMode == .on {
-                    self.depthDataDeliveryButton.setImage(#imageLiteral(resourceName: "DepthON"), for: [])
-                } else {
-                    self.depthDataDeliveryButton.setImage(#imageLiteral(resourceName: "DepthOFF"), for: [])
-                    self.portraitEffectsMatteDeliveryButton.setImage(#imageLiteral(resourceName: "PortraitMatteOFF"), for: [])
-                }
-            }
-        }
-    }
-    
-    private var portraitEffectsMatteDeliveryMode: PortraitEffectsMatteDeliveryMode = .off
-    
-    @IBOutlet private weak var portraitEffectsMatteDeliveryButton: UIButton!
-    
-    @IBAction func togglePortraitEffectsMatteDeliveryMode(_ portraitEffectsMatteDeliveryButton: UIButton) {
-        sessionQueue.async {
-            if self.portraitEffectsMatteDeliveryMode == .on {
-                self.portraitEffectsMatteDeliveryMode = .off
-            } else {
-                self.portraitEffectsMatteDeliveryMode = (self.depthDataDeliveryMode == .off) ? .off : .on
-            }
-            let portraitEffectsMatteDeliveryMode = self.portraitEffectsMatteDeliveryMode
-            
-            DispatchQueue.main.async {
-                if portraitEffectsMatteDeliveryMode == .on {
-                    self.portraitEffectsMatteDeliveryButton.setImage(#imageLiteral(resourceName: "PortraitMatteON"), for: [])
-                } else {
-                    self.portraitEffectsMatteDeliveryButton.setImage(#imageLiteral(resourceName: "PortraitMatteOFF"), for: [])
-                }
-            }
-        }
-    }
-    
     private var inProgressLivePhotoCapturesCount = 0
     
     @IBOutlet var capturingLivePhotoLabel: UILabel!
@@ -577,10 +505,6 @@ class CameraViewController: UIViewController {
             guard let isSessionRunning = change.newValue else { return }
             let isLivePhotoCaptureSupported = self.photoOutput.isLivePhotoCaptureSupported
             let isLivePhotoCaptureEnabled = self.photoOutput.isLivePhotoCaptureEnabled
-            let isDepthDeliveryDataSupported = self.photoOutput.isDepthDataDeliverySupported
-            let isDepthDeliveryDataEnabled = self.photoOutput.isDepthDataDeliveryEnabled
-            let isPortraitEffectsMatteSupported = self.photoOutput.isPortraitEffectsMatteDeliverySupported
-            let isPortraitEffectsMatteEnabled = self.photoOutput.isPortraitEffectsMatteDeliveryEnabled
             
             DispatchQueue.main.async {
                 // Only enable the ability to change camera if the device has more than one camera.
@@ -588,10 +512,6 @@ class CameraViewController: UIViewController {
                 self.photoButton.isEnabled = isSessionRunning
                 self.livePhotoModeButton.isEnabled = isSessionRunning && isLivePhotoCaptureEnabled
                 self.livePhotoModeButton.isHidden = !(isSessionRunning && isLivePhotoCaptureSupported)
-                self.depthDataDeliveryButton.isEnabled = isSessionRunning && isDepthDeliveryDataEnabled
-                self.depthDataDeliveryButton.isHidden = !(isSessionRunning && isDepthDeliveryDataSupported)
-                self.portraitEffectsMatteDeliveryButton.isEnabled = isSessionRunning && isPortraitEffectsMatteEnabled
-                self.portraitEffectsMatteDeliveryButton.isHidden = !(isSessionRunning && isPortraitEffectsMatteSupported)
             }
         }
         keyValueObservations.append(keyValueObservation)
@@ -663,10 +583,6 @@ class CameraViewController: UIViewController {
     
     /// - Tag: HandleSystemPressure
     private func setRecommendedFrameRateRangeForPressureState(systemPressureState: AVCaptureDevice.SystemPressureState) {
-        /*
-         The frame rates used here are for demonstrative purposes only for this app.
-         Your frame rate throttling may be different depending on your app's camera configuration.
-         */
         let pressureLevel = systemPressureState.level
         if pressureLevel == .shutdown {
             print("Session stopped running due to shutdown system pressure level.")
