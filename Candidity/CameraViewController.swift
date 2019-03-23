@@ -312,10 +312,7 @@ class CameraViewController: UIViewController {
                     // Remove the existing device input first, since the system doesn't support simultaneous use of the rear and front cameras.
                     self.session.removeInput(self.videoDeviceInput)
                     
-                    if self.session.canAddInput(videoDeviceInput) {
-                        NotificationCenter.default.removeObserver(self, name: .AVCaptureDeviceSubjectAreaDidChange, object: currentVideoDevice)
-                        NotificationCenter.default.addObserver(self, selector: #selector(self.subjectAreaDidChange), name: .AVCaptureDeviceSubjectAreaDidChange, object: videoDeviceInput.device)
-                        
+                    if self.session.canAddInput(videoDeviceInput) {                        
                         self.session.addInput(videoDeviceInput)
                         self.videoDeviceInput = videoDeviceInput
                     } else {
@@ -340,43 +337,6 @@ class CameraViewController: UIViewController {
                 self.cameraButton.isEnabled = true
                 self.photoButton.isEnabled = true
                 self.livePhotoModeButton.isEnabled = true
-            }
-        }
-    }
-    
-    @IBAction private func focusAndExposeTap(_ gestureRecognizer: UITapGestureRecognizer) {
-        let devicePoint = previewView.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: gestureRecognizer.location(in: gestureRecognizer.view))
-        focus(with: .autoFocus, exposureMode: .autoExpose, at: devicePoint, monitorSubjectAreaChange: true)
-    }
-    
-    private func focus(with focusMode: AVCaptureDevice.FocusMode,
-                       exposureMode: AVCaptureDevice.ExposureMode,
-                       at devicePoint: CGPoint,
-                       monitorSubjectAreaChange: Bool) {
-        
-        sessionQueue.async {
-            let device = self.videoDeviceInput.device
-            do {
-                try device.lockForConfiguration()
-                
-                /*
-                 Setting (focus/exposure)PointOfInterest alone does not initiate a (focus/exposure) operation.
-                 Call set(Focus/Exposure)Mode() to apply the new point of interest.
-                 */
-                if device.isFocusPointOfInterestSupported && device.isFocusModeSupported(focusMode) {
-                    device.focusPointOfInterest = devicePoint
-                    device.focusMode = focusMode
-                }
-                
-                if device.isExposurePointOfInterestSupported && device.isExposureModeSupported(exposureMode) {
-                    device.exposurePointOfInterest = devicePoint
-                    device.exposureMode = exposureMode
-                }
-                
-                device.isSubjectAreaChangeMonitoringEnabled = monitorSubjectAreaChange
-                device.unlockForConfiguration()
-            } catch {
-                print("Could not lock device for configuration: \(error)")
             }
         }
     }
@@ -512,11 +472,6 @@ class CameraViewController: UIViewController {
         keyValueObservations.append(systemPressureStateObservation)
         
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(subjectAreaDidChange),
-                                               name: .AVCaptureDeviceSubjectAreaDidChange,
-                                               object: videoDeviceInput.device)
-        
-        NotificationCenter.default.addObserver(self,
                                                selector: #selector(sessionRuntimeError),
                                                name: .AVCaptureSessionRuntimeError,
                                                object: session)
@@ -545,12 +500,6 @@ class CameraViewController: UIViewController {
             keyValueObservation.invalidate()
         }
         keyValueObservations.removeAll()
-    }
-    
-    @objc
-    func subjectAreaDidChange(notification: NSNotification) {
-        let devicePoint = CGPoint(x: 0.5, y: 0.5)
-        focus(with: .continuousAutoFocus, exposureMode: .continuousAutoExposure, at: devicePoint, monitorSubjectAreaChange: false)
     }
     
     /// - Tag: HandleRuntimeError

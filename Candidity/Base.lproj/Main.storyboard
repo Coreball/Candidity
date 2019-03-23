@@ -41,9 +41,6 @@
                                     <constraint firstItem="04W-7Z-iur" firstAttribute="centerY" secondItem="3eR-Rn-XpZ" secondAttribute="centerY" constant="100" id="eIG-Ly-g6C"/>
                                     <constraint firstItem="04W-7Z-iur" firstAttribute="centerX" secondItem="3eR-Rn-XpZ" secondAttribute="centerX" id="gp5-ba-6Xs"/>
                                 </constraints>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="fY6-qX-ntV" appends="YES" id="G6D-dx-xU8"/>
-                                </connections>
                             </view>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Live" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pii-2r-R2l" userLabel="Capturing Live Photo">
                                 <rect key="frame" x="192" y="110" width="30" height="21"/>
@@ -180,11 +177,6 @@
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
-                <tapGestureRecognizer id="fY6-qX-ntV">
-                    <connections>
-                        <action selector="focusAndExposeTap:" destination="BYZ-38-t0r" id="65g-8k-5pv"/>
-                    </connections>
-                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="-656" y="-630"/>
         </scene>
