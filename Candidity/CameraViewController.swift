@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Photos
 
-class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelegate {
+class CameraViewController: UIViewController {
     // MARK: View Controller Life Cycle
     
     override func viewDidLoad() {
@@ -17,12 +17,10 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         // Disable UI. Enable the UI later, if and only if the session starts running.
         cameraButton.isEnabled = false
-        recordButton.isEnabled = false
         photoButton.isEnabled = false
         livePhotoModeButton.isEnabled = false
         depthDataDeliveryButton.isEnabled = false
         portraitEffectsMatteDeliveryButton.isEnabled = false
-        captureModeControl.isEnabled = false
         
         // Set up the video preview view.
         previewView.session = session
@@ -134,10 +132,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     }
     
     override var shouldAutorotate: Bool {
-        // Disable autorotation of the interface when recording is in progress.
-        if let movieFileOutput = movieFileOutput {
-            return !movieFileOutput.isRecording
-        }
         return true
     }
     
@@ -194,20 +188,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         
         // Add video input.
         do {
-            var defaultVideoDevice: AVCaptureDevice?
-            
-            // Choose the back dual camera if available, otherwise default to a wide angle camera.
-            
-            if let dualCameraDevice = AVCaptureDevice.default(.builtInDualCamera, for: .video, position: .back) {
-                defaultVideoDevice = dualCameraDevice
-            } else if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
-                // If a rear dual camera is not available, default to the rear wide angle camera.
-                defaultVideoDevice = backCameraDevice
-            } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
-                // In the event that the rear wide angle camera isn't available, default to the front wide angle camera.
-                defaultVideoDevice = frontCameraDevice
-            }
-            guard let videoDevice = defaultVideoDevice else {
+            // Use the default video capture device
+            guard let videoDevice = AVCaptureDevice.default(for: .video) else {
                 print("Default video device is unavailable.")
                 setupResult = .configurationFailed
                 session.commitConfiguration()
@@ -288,119 +270,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
         session.commitConfiguration()
     }
     
-    @IBAction private func resumeInterruptedSession(_ resumeButton: UIButton) {
-        sessionQueue.async {
-            /*
-             The session might fail to start running, e.g., if a phone or FaceTime call is still
-             using audio or video. A failure to start the session running will be communicated via
-             a session runtime error notification. To avoid repeatedly failing to start the session
-             running, we only try to restart the session running in the session runtime error handler
-             if we aren't trying to resume the session running.
-             */
-            self.session.startRunning()
-            self.isSessionRunning = self.session.isRunning
-            if !self.session.isRunning {
-                DispatchQueue.main.async {
-                    let message = NSLocalizedString("Unable to resume", comment: "Alert message when unable to resume the session running")
-                    let alertController = UIAlertController(title: "Candidity", message: message, preferredStyle: .alert)
-                    let cancelAction = UIAlertAction(title: NSLocalizedString("OK", comment: "Alert OK button"), style: .cancel, handler: nil)
-                    alertController.addAction(cancelAction)
-                    self.present(alertController, animated: true, completion: nil)
-                }
-            } else {
-                DispatchQueue.main.async {
-                    self.resumeButton.isHidden = true
-                }
-            }
-        }
-    }
-    
-    private enum CaptureMode: Int {
-        case photo = 0
-        case movie = 1
-    }
-    
-    @IBOutlet private weak var captureModeControl: UISegmentedControl!
-    
-    /// - Tag: EnableDisableModes
-    @IBAction private func toggleCaptureMode(_ captureModeControl: UISegmentedControl) {
-        captureModeControl.isEnabled = false
-        
-        if captureModeControl.selectedSegmentIndex == CaptureMode.photo.rawValue {
-            recordButton.isEnabled = false
-            
-            sessionQueue.async {
-                // Remove the AVCaptureMovieFileOutput from the session since it doesn't support capture of Live Photos.
-                self.session.beginConfiguration()
-                self.session.removeOutput(self.movieFileOutput!)
-                self.session.sessionPreset = .photo
-                
-                DispatchQueue.main.async {
-                    captureModeControl.isEnabled = true
-                }
-                
-                self.movieFileOutput = nil
-                
-                if self.photoOutput.isLivePhotoCaptureSupported {
-                    self.photoOutput.isLivePhotoCaptureEnabled = true
-                    
-                    DispatchQueue.main.async {
-                        self.livePhotoModeButton.isEnabled = true
-                        self.livePhotoModeButton.isHidden = false
-                    }
-                }
-                if self.photoOutput.isDepthDataDeliverySupported {
-                    self.photoOutput.isDepthDataDeliveryEnabled = true
-                    
-                    DispatchQueue.main.async {
-                        self.depthDataDeliveryButton.isHidden = false
-                        self.depthDataDeliveryButton.isEnabled = true
-                    }
-                }
-                
-                if self.photoOutput.isPortraitEffectsMatteDeliverySupported {
-                    self.photoOutput.isPortraitEffectsMatteDeliveryEnabled = true
-                    
-                    DispatchQueue.main.async {
-                        self.portraitEffectsMatteDeliveryButton.isHidden = false
-                        self.portraitEffectsMatteDeliveryButton.isEnabled = true
-                    }
-                }
-                self.session.commitConfiguration()
-            }
-        } else if captureModeControl.selectedSegmentIndex == CaptureMode.movie.rawValue {
-            livePhotoModeButton.isHidden = true
-            depthDataDeliveryButton.isHidden = true
-            portraitEffectsMatteDeliveryButton.isHidden = true
-            
-            sessionQueue.async {
-                let movieFileOutput = AVCaptureMovieFileOutput()
-                
-                if self.session.canAddOutput(movieFileOutput) {
-                    self.session.beginConfiguration()
-                    self.session.addOutput(movieFileOutput)
-                    self.session.sessionPreset = .high
-                    if let connection = movieFileOutput.connection(with: .video) {
-                        if connection.isVideoStabilizationSupported {
-                            connection.preferredVideoStabilizationMode = .auto
-                        }
-                    }
-                    self.session.commitConfiguration()
-                    
-                    DispatchQueue.main.async {
-                        captureModeControl.isEnabled = true
-                    }
-                    
-                    self.movieFileOutput = movieFileOutput
-                    
-                    DispatchQueue.main.async {
-                        self.recordButton.isEnabled = true
-                    }
-                }
-            }
-        }
-    }
-    
     // MARK: Device Configuration
     
     @IBOutlet private weak var cameraButton: UIButton!
@@ -413,10 +282,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     /// - Tag: ChangeCamera
     @IBAction private func changeCamera(_ cameraButton: UIButton) {
         cameraButton.isEnabled = false
-        recordButton.isEnabled = false
         photoButton.isEnabled = false
         livePhotoModeButton.isEnabled = false
-        captureModeControl.isEnabled = false
         
         sessionQueue.async {
             let currentVideoDevice = self.videoDeviceInput.device
@@ -462,11 +329,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
                     } else {
                         self.session.addInput(self.videoDeviceInput)
                     }
-                    if let connection = self.movieFileOutput?.connection(with: .video) {
-                        if connection.isVideoStabilizationSupported {
-                            connection.preferredVideoStabilizationMode = .auto
-                        }
-                    }
                     
                     /*
                      Set Live Photo capture and depth data delivery if it is supported. When changing cameras, the
@@ -486,10 +348,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             
             DispatchQueue.main.async {
                 self.cameraButton.isEnabled = true
-                self.recordButton.isEnabled = self.movieFileOutput != nil
                 self.photoButton.isEnabled = true
                 self.livePhotoModeButton.isEnabled = true
-                self.captureModeControl.isEnabled = true
                 self.depthDataDeliveryButton.isEnabled = self.photoOutput.isDepthDataDeliveryEnabled
                 self.depthDataDeliveryButton.isHidden = !self.photoOutput.isDepthDataDeliverySupported
                 self.portraitEffectsMatteDeliveryButton.isEnabled = self.photoOutput.isPortraitEffectsMatteDeliveryEnabled
@@ -708,135 +568,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     
     @IBOutlet var capturingLivePhotoLabel: UILabel!
     
-    // MARK: Recording Movies
-    
-    private var movieFileOutput: AVCaptureMovieFileOutput?
-    
-    private var backgroundRecordingID: UIBackgroundTaskIdentifier?
-    
-    @IBOutlet private weak var recordButton: UIButton!
-    
-    @IBOutlet private weak var resumeButton: UIButton!
-    
-    @IBAction private func toggleMovieRecording(_ recordButton: UIButton) {
-        guard let movieFileOutput = self.movieFileOutput else {
-            return
-        }
-        
-        /*
-         Disable the Camera button until recording finishes, and disable
-         the Record button until recording starts or finishes.
-         
-         See the AVCaptureFileOutputRecordingDelegate methods.
-         */
-        cameraButton.isEnabled = false
-        recordButton.isEnabled = false
-        captureModeControl.isEnabled = false
-        
-        let videoPreviewLayerOrientation = previewView.videoPreviewLayer.connection?.videoOrientation
-        
-        sessionQueue.async {
-            if !movieFileOutput.isRecording {
-                if UIDevice.current.isMultitaskingSupported {
-                    self.backgroundRecordingID = UIApplication.shared.beginBackgroundTask(expirationHandler: nil)
-                }
-                
-                // Update the orientation on the movie file output video connection before recording.
-                let movieFileOutputConnection = movieFileOutput.connection(with: .video)
-                movieFileOutputConnection?.videoOrientation = videoPreviewLayerOrientation!
-                
-                let availableVideoCodecTypes = movieFileOutput.availableVideoCodecTypes
-                
-                if availableVideoCodecTypes.contains(.hevc) {
-                    movieFileOutput.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.hevc], for: movieFileOutputConnection!)
-                }
-                
-                // Start recording video to a temporary file.
-                let outputFileName = NSUUID().uuidString
-                let outputFilePath = (NSTemporaryDirectory() as NSString).appendingPathComponent((outputFileName as NSString).appendingPathExtension("mov")!)
-                movieFileOutput.startRecording(to: URL(fileURLWithPath: outputFilePath), recordingDelegate: self)
-            } else {
-                movieFileOutput.stopRecording()
-            }
-        }
-    }
-    
-    /// - Tag: DidStartRecording
-    func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
-        // Enable the Record button to let the user stop recording.
-        DispatchQueue.main.async {
-            self.recordButton.isEnabled = true
-            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureStop"), for: [])
-        }
-    }
-    
-    /// - Tag: DidFinishRecording
-    func fileOutput(_ output: AVCaptureFileOutput,
-                    didFinishRecordingTo outputFileURL: URL,
-                    from connections: [AVCaptureConnection],
-                    error: Error?) {
-        // Note: Since we use a unique file path for each recording, a new recording won't overwrite a recording mid-save.
-        func cleanup() {
-            let path = outputFileURL.path
-            if FileManager.default.fileExists(atPath: path) {
-                do {
-                    try FileManager.default.removeItem(atPath: path)
-                } catch {
-                    print("Could not remove file at url: \(outputFileURL)")
-                }
-            }
-            
-            if let currentBackgroundRecordingID = backgroundRecordingID {
-                backgroundRecordingID = UIBackgroundTaskIdentifier.invalid
-                
-                if currentBackgroundRecordingID != UIBackgroundTaskIdentifier.invalid {
-                    UIApplication.shared.endBackgroundTask(currentBackgroundRecordingID)
-                }
-            }
-        }
-        
-        var success = true
-        
-        if error != nil {
-            print("Movie file finishing error: \(String(describing: error))")
-            success = (((error! as NSError).userInfo[AVErrorRecordingSuccessfullyFinishedKey] as AnyObject).boolValue)!
-        }
-        
-        if success {
-            // Check authorization status.
-            PHPhotoLibrary.requestAuthorization { status in
-                if status == .authorized {
-                    // Save the movie file to the photo library and cleanup.
-                    PHPhotoLibrary.shared().performChanges({
-                        let options = PHAssetResourceCreationOptions()
-                        options.shouldMoveFile = true
-                        let creationRequest = PHAssetCreationRequest.forAsset()
-                        creationRequest.addResource(with: .video, fileURL: outputFileURL, options: options)
-                    }, completionHandler: { success, error in
-                        if !success {
-                            print("Candidity couldn't save the movie to your photo library: \(String(describing: error))")
-                        }
-                        cleanup()
-                    }
-                    )
-                } else {
-                    cleanup()
-                }
-            }
-        } else {
-            cleanup()
-        }
-        
-        // Enable the Camera and Record buttons to let the user switch camera and start another recording.
-        DispatchQueue.main.async {
-            // Only enable the ability to change camera if the device has more than one camera.
-            self.cameraButton.isEnabled = self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-            self.recordButton.isEnabled = true
-            self.captureModeControl.isEnabled = true
-            self.recordButton.setImage(#imageLiteral(resourceName: "CaptureVideo"), for: [])
-        }
-    }
-    
     // MARK: KVO and Notifications
     
     private var keyValueObservations = [NSKeyValueObservation]()
@@ -854,9 +585,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             DispatchQueue.main.async {
                 // Only enable the ability to change camera if the device has more than one camera.
                 self.cameraButton.isEnabled = isSessionRunning && self.videoDeviceDiscoverySession.uniqueDevicePositionsCount > 1
-                self.recordButton.isEnabled = isSessionRunning && self.movieFileOutput != nil
                 self.photoButton.isEnabled = isSessionRunning
-                self.captureModeControl.isEnabled = isSessionRunning
                 self.livePhotoModeButton.isEnabled = isSessionRunning && isLivePhotoCaptureEnabled
                 self.livePhotoModeButton.isHidden = !(isSessionRunning && isLivePhotoCaptureSupported)
                 self.depthDataDeliveryButton.isEnabled = isSessionRunning && isDepthDeliveryDataEnabled
@@ -927,14 +656,8 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
                 if self.isSessionRunning {
                     self.session.startRunning()
                     self.isSessionRunning = self.session.isRunning
-                } else {
-                    DispatchQueue.main.async {
-                        self.resumeButton.isHidden = false
-                    }
                 }
             }
-        } else {
-            resumeButton.isHidden = false
         }
     }
     
@@ -945,19 +668,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
          Your frame rate throttling may be different depending on your app's camera configuration.
          */
         let pressureLevel = systemPressureState.level
-        if pressureLevel == .serious || pressureLevel == .critical {
-            if self.movieFileOutput == nil || self.movieFileOutput?.isRecording == false {
-                do {
-                    try self.videoDeviceInput.device.lockForConfiguration()
-                    print("WARNING: Reached elevated system pressure level: \(pressureLevel). Throttling frame rate.")
-                    self.videoDeviceInput.device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: 20 )
-                    self.videoDeviceInput.device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: 15 )
-                    self.videoDeviceInput.device.unlockForConfiguration()
-                } catch {
-                    print("Could not lock device for configuration: \(error)")
-                }
-            }
-        } else if pressureLevel == .shutdown {
+        if pressureLevel == .shutdown {
             print("Session stopped running due to shutdown system pressure level.")
         }
     }
@@ -978,10 +689,7 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             let reason = AVCaptureSession.InterruptionReason(rawValue: reasonIntegerValue) {
             print("Capture session was interrupted with reason \(reason)")
             
-            var showResumeButton = false
-            if reason == .audioDeviceInUseByAnotherClient || reason == .videoDeviceInUseByAnotherClient {
-                showResumeButton = true
-            } else if reason == .videoDeviceNotAvailableWithMultipleForegroundApps {
+            if reason == .videoDeviceNotAvailableWithMultipleForegroundApps {
                 // Fade-in a label to inform the user that the camera is unavailable.
                 cameraUnavailableLabel.alpha = 0
                 cameraUnavailableLabel.isHidden = false
@@ -991,14 +699,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
             } else if reason == .videoDeviceNotAvailableDueToSystemPressure {
                 print("Session stopped running due to shutdown system pressure level.")
             }
-            if showResumeButton {
-                // Fade-in a button to enable the user to try to resume the session running.
-                resumeButton.alpha = 0
-                resumeButton.isHidden = false
-                UIView.animate(withDuration: 0.25) {
-                    self.resumeButton.alpha = 1
-                }
-            }
         }
     }
     
@@ -1006,14 +706,6 @@ class CameraViewController: UIViewController, AVCaptureFileOutputRecordingDelega
     func sessionInterruptionEnded(notification: NSNotification) {
         print("Capture session interruption ended")
         
-        if !resumeButton.isHidden {
-            UIView.animate(withDuration: 0.25,
-                           animations: {
-                            self.resumeButton.alpha = 0
-            }, completion: { _ in
-                self.resumeButton.isHidden = true
-            })
-        }
         if !cameraUnavailableLabel.isHidden {
             UIView.animate(withDuration: 0.25,
                            animations: {
