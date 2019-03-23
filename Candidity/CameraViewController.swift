@@ -248,8 +248,6 @@ class CameraViewController: UIViewController {
             
             photoOutput.isHighResolutionCaptureEnabled = true
             photoOutput.isLivePhotoCaptureEnabled = photoOutput.isLivePhotoCaptureSupported
-            photoOutput.isDepthDataDeliveryEnabled = photoOutput.isDepthDataDeliverySupported
-            photoOutput.isPortraitEffectsMatteDeliveryEnabled = photoOutput.isPortraitEffectsMatteDeliverySupported
             livePhotoMode = photoOutput.isLivePhotoCaptureSupported ? .on : .off
             
         } else {
@@ -265,6 +263,8 @@ class CameraViewController: UIViewController {
     // MARK: Device Configuration
     
     @IBOutlet private weak var cameraTap: UITapGestureRecognizer!
+    
+    @IBOutlet weak var cameraIndicator: UIView!
     
     @IBOutlet private weak var cameraUnavailableLabel: UILabel!
     
@@ -289,10 +289,15 @@ class CameraViewController: UIViewController {
             case .unspecified, .front:
                 preferredPosition = .back
                 preferredDeviceType = .builtInDualCamera
-                
+                DispatchQueue.main.async {
+                    self.cameraIndicator.backgroundColor = .cyan
+                }
             case .back:
                 preferredPosition = .front
                 preferredDeviceType = .builtInTrueDepthCamera
+                DispatchQueue.main.async {
+                    self.cameraIndicator.backgroundColor = .magenta
+                }
             }
             let devices = self.videoDeviceDiscoverySession.devices
             var newVideoDevice: AVCaptureDevice? = nil
@@ -398,9 +403,9 @@ class CameraViewController: UIViewController {
                     let inProgressLivePhotoCapturesCount = self.inProgressLivePhotoCapturesCount
                     DispatchQueue.main.async {
                         if inProgressLivePhotoCapturesCount > 0 {
-                            self.capturingLivePhotoLabel.isHidden = false
+                            self.livePhotoIndicator.backgroundColor = .white
                         } else if inProgressLivePhotoCapturesCount == 0 {
-                            self.capturingLivePhotoLabel.isHidden = true
+                            self.livePhotoIndicator.backgroundColor = .yellow
                         } else {
                             print("Error: In progress Live Photo capture count is less than 0.")
                         }
@@ -429,6 +434,8 @@ class CameraViewController: UIViewController {
     
     @IBOutlet private weak var livePhotoModeTap: UITapGestureRecognizer!
     
+    @IBOutlet weak var livePhotoIndicator: UIView!
+    
     @IBAction private func toggleLivePhotoMode(_ sender: UITapGestureRecognizer) {
         sessionQueue.async {
             self.livePhotoMode = (self.livePhotoMode == .on) ? .off : .on
@@ -437,10 +444,10 @@ class CameraViewController: UIViewController {
             DispatchQueue.main.async {
                 if livePhotoMode == .on {
                     print("Live Photos On")
-                    // Change color
+                    self.livePhotoIndicator.backgroundColor = .yellow
                 } else {
                     print("Live Photos Off")
-                    // Change color
+                    self.livePhotoIndicator.backgroundColor = .darkGray
                 }
             }
         }

@@ -41,11 +41,11 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <stackView opaque="NO" contentMode="scaleToFill" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="kV2-oL-aJR">
-                                <rect key="frame" x="187" y="846" width="40" height="8"/>
+                                <rect key="frame" x="195" y="846" width="24" height="8"/>
                                 <subviews>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="04W-7Z-iur">
                                         <rect key="frame" x="0.0" y="0.0" width="8" height="8"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <color key="backgroundColor" red="0.99942404029999998" green="1" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="8" id="QL8-zb-Ar1"/>
                                             <constraint firstAttribute="height" constant="8" id="bLG-bV-zIq"/>
@@ -56,22 +56,9 @@
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
                                     </view>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DNa-db-jiO">
-                                        <rect key="frame" x="16" y="0.0" width="8" height="8"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="8" id="72H-fK-iTF"/>
-                                            <constraint firstAttribute="height" constant="8" id="qZd-y6-V88"/>
-                                        </constraints>
-                                        <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
-                                                <integer key="value" value="4"/>
-                                            </userDefinedRuntimeAttribute>
-                                        </userDefinedRuntimeAttributes>
-                                    </view>
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7Yh-R4-mHZ">
-                                        <rect key="frame" x="32" y="0.0" width="8" height="8"/>
-                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <rect key="frame" x="16" y="0.0" width="8" height="8"/>
+                                        <color key="backgroundColor" red="0.0" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="8" id="9yg-wM-DQd"/>
                                             <constraint firstAttribute="height" constant="8" id="S17-Pm-wiW"/>
@@ -121,9 +108,11 @@
                     <extendedEdge key="edgesForExtendedLayout"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
+                        <outlet property="cameraIndicator" destination="7Yh-R4-mHZ" id="HVK-Mv-vDG"/>
                         <outlet property="cameraTap" destination="q2F-CB-P48" id="FPP-dO-ycX"/>
                         <outlet property="cameraUnavailableLabel" destination="zf0-db-esM" id="P9W-lb-Pb8"/>
                         <outlet property="capturingLivePhotoLabel" destination="Pii-2r-R2l" id="JAa-4l-5SD"/>
+                        <outlet property="livePhotoIndicator" destination="04W-7Z-iur" id="B63-EL-EHI"/>
                         <outlet property="livePhotoModeTap" destination="dPQ-lv-WRe" id="W1q-LV-JKh"/>
                         <outlet property="photoTap" destination="hrN-Gy-eEr" id="hbB-ge-nwO"/>
                         <outlet property="previewView" destination="3eR-Rn-XpZ" id="e7I-nu-L6j"/>
@@ -146,7 +135,7 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="-656" y="-630"/>
+            <point key="canvasLocation" x="-656.52173913043487" y="-630.13392857142856"/>
         </scene>
     </scenes>
 </document>
